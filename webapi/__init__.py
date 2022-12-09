@@ -10,10 +10,10 @@ app.config.from_pyfile('config.py')
 db = SQLAlchemy(app)
 # bcrypt = Bcrypt(app)
 # api_match_start = Api(app)
-'''
+
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 connection = engine.connect()
-table_models = importlib.import_module('cargo.models')
+table_models = importlib.import_module('webapi.models')
 if not engine.dialect.has_table(connection, "User"):
     ORMTable = getattr(table_models, "User")
     ORMTable.__table__.create(bind=engine, checkfirst=True)
@@ -22,23 +22,23 @@ if not engine.dialect.has_table(connection, "Tournament"):
     ORMTable = getattr(table_models, "Tournament")
     ORMTable.__table__.create(bind=engine, checkfirst=True)
 
-if not engine.dialect.has_table(connection, "Team"):
+if not engine.dialect.has_table(connection, "MapList"):
     ORMTable = getattr(table_models, "Team")
     ORMTable.__table__.create(bind=engine, checkfirst=True)
 
-if not engine.dialect.has_table(connection, "Match"):
+if not engine.dialect.has_table(connection, "MatchStats"):
     ORMTable = getattr(table_models, "Match")
     ORMTable.__table__.create(bind=engine, checkfirst=True)
 
-if not engine.dialect.has_table(connection, "MapStats"):
+if not engine.dialect.has_table(connection, "Servers"):
     ORMTable = getattr(table_models, "MapStats")
     ORMTable.__table__.create(bind=engine, checkfirst=True)
 
-if not engine.dialect.has_table(connection, "Registration"):
+if not engine.dialect.has_table(connection, "Team"):
     ORMTable = getattr(table_models, "Registration")
     ORMTable.__table__.create(bind=engine, checkfirst=True)
 
-if not engine.dialect.has_table(connection, "Servers"):
+if not engine.dialect.has_table(connection, "TournamentTeam"):
     ORMTable = getattr(table_models, "Servers")
     ORMTable.__table__.create(bind=engine, checkfirst=True)
 
@@ -46,7 +46,6 @@ if not engine.dialect.has_table(connection, "PlayerStats"):
     ORMTable = getattr(table_models, "PlayerStats")
     ORMTable.__table__.create(bind=engine, checkfirst=True)
 
-if not engine.dialect.has_table(connection, "Rounds"):
+if not engine.dialect.has_table(connection, "StageStats"):
     ORMTable = getattr(table_models, "Rounds")
     ORMTable.__table__.create(bind=engine, checkfirst=True)
-'''

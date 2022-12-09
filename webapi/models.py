@@ -1,4 +1,4 @@
-from webapp import db
+from webapi import db
 
 
 class User(db.Model):
