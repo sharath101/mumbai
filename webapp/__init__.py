@@ -8,9 +8,9 @@ from sqlalchemy import create_engine
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
 db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
-api_match_start = Api(app)
-
+# bcrypt = Bcrypt(app)
+# api_match_start = Api(app)
+'''
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 connection = engine.connect()
 table_models = importlib.import_module('cargo.models')
@@ -49,4 +49,4 @@ if not engine.dialect.has_table(connection, "PlayerStats"):
 if not engine.dialect.has_table(connection, "Rounds"):
     ORMTable = getattr(table_models, "Rounds")
     ORMTable.__table__.create(bind=engine, checkfirst=True)
-
+'''
