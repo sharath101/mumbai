@@ -27,7 +27,7 @@ class Tournament(db.Model):
     admin_wh = db.Column(db.String)
     players_wh = db.Column(db.String)
     discord_invite = db.Column(db.String)
-    organiserId = db.Column(db.Integer, db.ForeignKey('user.id'))
+    organiserId = db.Column(db.Integer)
 
 
 class MapList(db.Model):
@@ -122,9 +122,9 @@ class StageStats(db.Model):
 
 class PlayerStats(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    match_id = db.Column(db.Integer, db.ForeignKey('match.id'))
-    map_id = db.Column(db.Integer, db.ForeignKey('map_stats.id'))
-    team_id = db.Column(db.Integer, db.ForeignKey('team.id'))
+    match_id = db.Column(db.Integer)
+    map_id = db.Column(db.Integer)
+    team_id = db.Column(db.Integer)
     steam_id = db.Column(db.String(40))
     name = db.Column(db.String(40))
     kills = db.Column(db.Integer, default=0)

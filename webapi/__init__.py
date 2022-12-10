@@ -1,15 +1,11 @@
 import importlib
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_bcrypt import Bcrypt
-from flask_restful import Api
 from sqlalchemy import create_engine
 
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
 db = SQLAlchemy(app)
-# bcrypt = Bcrypt(app)
-# api_match_start = Api(app)
 
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 connection = engine.connect()
@@ -23,23 +19,23 @@ if not engine.dialect.has_table(connection, "Tournament"):
     ORMTable.__table__.create(bind=engine, checkfirst=True)
 
 if not engine.dialect.has_table(connection, "MapList"):
-    ORMTable = getattr(table_models, "Team")
+    ORMTable = getattr(table_models, "MapList")
     ORMTable.__table__.create(bind=engine, checkfirst=True)
 
 if not engine.dialect.has_table(connection, "MatchStats"):
-    ORMTable = getattr(table_models, "Match")
+    ORMTable = getattr(table_models, "MatchStats")
     ORMTable.__table__.create(bind=engine, checkfirst=True)
 
 if not engine.dialect.has_table(connection, "Servers"):
-    ORMTable = getattr(table_models, "MapStats")
+    ORMTable = getattr(table_models, "Servers")
     ORMTable.__table__.create(bind=engine, checkfirst=True)
 
 if not engine.dialect.has_table(connection, "Team"):
-    ORMTable = getattr(table_models, "Registration")
+    ORMTable = getattr(table_models, "Team")
     ORMTable.__table__.create(bind=engine, checkfirst=True)
 
 if not engine.dialect.has_table(connection, "TournamentTeam"):
-    ORMTable = getattr(table_models, "Servers")
+    ORMTable = getattr(table_models, "TournamentTeam")
     ORMTable.__table__.create(bind=engine, checkfirst=True)
 
 if not engine.dialect.has_table(connection, "PlayerStats"):
@@ -47,5 +43,5 @@ if not engine.dialect.has_table(connection, "PlayerStats"):
     ORMTable.__table__.create(bind=engine, checkfirst=True)
 
 if not engine.dialect.has_table(connection, "StageStats"):
-    ORMTable = getattr(table_models, "Rounds")
+    ORMTable = getattr(table_models, "StageStats")
     ORMTable.__table__.create(bind=engine, checkfirst=True)
