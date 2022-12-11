@@ -1,70 +1,79 @@
+import requests
 from webapi import app, db
-from flask_login import login_user, login_required, logout_user, current_user, login_manager
+from flask_login import login_user, login_required, current_user
 from flask import request
-
-from webapi.functions import steam_id_profile, check_request
+from webapi.functions import steam_id_profile
 from webapi.models import User
 
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return {"success": False,
-            "message": "404! Invalid URL!"}
+    return {"success": False, "message": "404! Invalid URL!"}
 
 
 @app.route('/login', methods=['POST'])
 def login():
-    login_result = {"success": False,
-                    "ign": {"success": False, "message": ""},
-                    "name": {"success": False, "message": ""},
-                    "email": {"success": False, "message": ""},
-                    "steamid": {"success": False, "message": ""},
-                    "loggedIn": False}
     data = request.get_json()
     all_keys = []
     for keys in data:
         all_keys.append(keys)
-    if "email" in all_keys and "name" in all_keys:
-        name = data["name"]
-        email = data["email"]
-        login_result["name"]["success"] = True
-        login_result["email"]["success"] = True
+    if "accessToken" in all_keys:
+        token = data["accessToken"]
+        data_google = requests.get("https://www.googleapis.com/oauth2/v1/userinfo?access_token=" + token)
+        data_google = data_google.json()
+        data_avail = []
+        for keys in data_google:
+            data_avail.append(keys)
+        if "error" in data_avail:
+            return {"success": False, "message": "accessToken Failed!"}
+        name = data_google["name"]
+        email = data_google["email"]
+        picture = data_google["picture"]
     else:
-        return login_result
+        return {"success": False, "message": "accessToken not available!"}
     existing_user = User.query.filter_by(email=email).first()
     if existing_user:
         login_user(existing_user, remember=True)
-        login_result["success"] = True
-        login_result["loggedIn"] = True
-        return login_result
+        data = {"ign": existing_user.ign,
+                "picture": existing_user.picture,
+                "email": existing_user.email,
+                "steamId": existing_user.steamid,
+                "name": existing_user.name}
+        return {"success": True, "data": data}
     else:
         if "ign" in all_keys:
             ign = data["ign"]
-            login_result["ign"]["success"] = True
+            if ign == "":
+                return {"success": False, "message": "IGN is not valid!"}
         else:
-            return login_result
-        if "steamid" in all_keys:
-            steamid = data["steamid"]
+            return {"success": False, "message": "IGN not available"}
+        if "steamId" in all_keys:
+            steamid = data["steamId"]
             steamid_verified = steam_id_profile(steamid)
             if steamid_verified:
-                login_result["steamid"]["success"] = True
+                existing_user = User.query.filter_by(steamid=steamid_verified).first()
+                if existing_user:
+                    return {"success": False, "message": "Steam ID already used!"}
                 user = User()
                 user.ign = ign
                 user.name = name
                 user.email = email
+                user.picture = picture
                 user.steamid = steamid_verified
                 db.session.add(user)
                 db.session.commit()
                 user = User.query.filter_by(email=email).first()
                 login_user(user, remember=True)
-                login_result["success"] = True
-                login_result["loggedIn"] = True
-                return login_result
+                data = {"ign": ign,
+                        "picture": picture,
+                        "email": email,
+                        "steamId": steamid_verified,
+                        "name": name}
+                return {"success": True, "data": data}
             else:
-                login_result["steamid"]["message"] = "Steam ID verification failed"
-                return login_result
+                return {"success": False, "message": "Steam URL invalid!"}
         else:
-            return login_result
+            return {"success": False, "message": "Steam URL not available!"}
 
 
 @app.route('/loginStatus')
