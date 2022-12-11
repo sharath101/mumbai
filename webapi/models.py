@@ -1,7 +1,20 @@
-from webapi import db
+from webapi import db, login_manager
+from flask_login import UserMixin
 
 
-class User(db.Model):
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+@login_manager.unauthorized_handler
+def unauthorized_callback():
+    return {"success": False,
+            "message": "Logged Out!",
+            "loggedIn": False}
+
+
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     ign = db.Column(db.String, nullable=False)
     name = db.Column(db.String, nullable=False)
@@ -41,7 +54,7 @@ class MatchStats(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tour_id = db.Column(db.Integer)
     match_ident = db.Column(db.Integer)
-    status = db.Column(db.Integer, nullable=False, default=0) # 0 Match Created, 1 - Ongoing, 2 - Ended
+    status = db.Column(db.Integer, nullable=False, default=0)
     team1_id = db.Column(db.Integer)
     team2_id = db.Column(db.Integer)
     winner = db.Column(db.Integer)

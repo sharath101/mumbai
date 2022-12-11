@@ -1,5 +1,9 @@
+from functools import wraps
+
 import requests
 from webapi import app
+from flask import request
+from webapi.models import unauthorized_callback
 
 
 def steam_id_profile(url):
@@ -27,3 +31,13 @@ def steam_id_profile(url):
         else:
             steam_id_final = False
     return steam_id_final
+
+
+def check_request(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        print(request)
+        # data = request.get_json()
+        return func(*args, **kwargs)
+
+    return decorated_view
