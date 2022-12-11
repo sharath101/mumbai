@@ -20,6 +20,7 @@ class User(db.Model, UserMixin):
     name = db.Column(db.String, nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
     steamid = db.Column(db.String, unique=True)
+    picture = db.Column(db.String)
 
 
 class Tournament(db.Model):
