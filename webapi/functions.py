@@ -1,9 +1,5 @@
-from functools import wraps
-
 import requests
 from webapi import app
-from flask import request
-from webapi.models import unauthorized_callback
 
 
 def validate_steamid(url):
