@@ -6,7 +6,7 @@ from flask import request
 from webapi.models import unauthorized_callback
 
 
-def steam_id_profile(url):
+def validate_steamid(url):
     try:
         vanity_url = url[30:]
         if vanity_url[-1] == '/':
@@ -31,13 +31,3 @@ def steam_id_profile(url):
         else:
             steam_id_final = False
     return steam_id_final
-
-
-def check_request(func):
-    @wraps(func)
-    def decorated_view(*args, **kwargs):
-        print(request)
-        # data = request.get_json()
-        return func(*args, **kwargs)
-
-    return decorated_view

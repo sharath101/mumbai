@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 from flask_login import LoginManager
 from flask_cors import CORS
+from flask_restful import Api
 
 
 app = Flask(__name__)
@@ -12,8 +13,15 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 app.config['CORS_HEADERS'] = 'Content-Type'
+api = Api(app)
 
-from webapi import accounts
+from webapi import routes
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return {"success": False, "message": "404! Invalid URL!"}
+
 
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 connection = engine.connect()
