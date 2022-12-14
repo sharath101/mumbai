@@ -1,5 +1,5 @@
 from webapi import api
-from webapi.accounts import Login
+from webapi.controller.accounts import LoginController
 
 
-api.add_resource(Login, "/login")
+api.add_resource(LoginController, "/login")

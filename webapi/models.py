@@ -10,8 +10,7 @@ def load_user(user_id):
 @login_manager.unauthorized_handler
 def unauthorized_callback():
     return {"success": False,
-            "message": "Logged Out!",
-            "loggedIn": False}
+            "message": "Access Denied"}, 403
 
 
 class User(db.Model, UserMixin):

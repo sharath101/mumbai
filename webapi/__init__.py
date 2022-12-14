@@ -20,7 +20,7 @@ from webapi import routes
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return {"success": False, "message": "404! Invalid URL!"}
+    return {"success": False, "message": "404! Invalid URL!"}, 404
 
 
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
