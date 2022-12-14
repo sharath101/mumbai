@@ -1,3 +1,6 @@
+import os.path
+import shutil
+
 import requests
 
 from webapi import app, db
@@ -24,7 +27,7 @@ class LoginService:
         existing_user = User.query.filter_by(email=google_data["email"]).first()
         if existing_user:
             data = {"ign": existing_user.ign,
-                    "picture": existing_user.picture,
+                    "picture": app.config["SERVER_URL"] + existing_user.picture,
                     "email": existing_user.email,
                     "steamId": existing_user.steamid,
                     "name": existing_user.name}
@@ -63,20 +66,31 @@ class LoginService:
                 return False, steam_id_final
         return True, steam_id_final
 
-    @staticmethod
-    def create_user(data):
+    def create_user(self, data):
         user = User()
         user.ign = data["ign"]
         user.name = data["name"]
         user.email = data["email"]
-        user.picture = data["picture"]
+        user.picture = "/pics/" + data["steamId"] + ".jpg"
         user.steamid = data["steamId"]
         db.session.add(user)
         db.session.commit()
-        user = User.query.filter_by(email=data["ign"]).first()
+        user = User.query.filter_by(email=data["email"]).first()
+        self.save_user_image(data["picture"], user.steamid)
         data = {"ign": user.ign,
-                "picture": user.picture,
+                "picture": app.config["SERVER_URL"] +  user.picture,
                 "email": user.email,
                 "steamId": user.steamid,
                 "name": user.name}
-        return data
+        return data, user
+
+    def save_user_image(self, url, filename):
+        directory = app.config["PROFILE_PICS"]
+        filepath = os.path.join(directory, filename + ".jpg")
+        image = requests.get(url, stream=True)
+        if image.status_code == 200:
+            with open(filepath, 'wb') as f:
+                shutil.copyfileobj(image.raw, f)
+            return True
+        else:
+            return False

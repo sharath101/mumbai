@@ -1,5 +1,7 @@
 import importlib
-from flask import Flask
+import os
+
+from flask import Flask, send_file
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 from flask_login import LoginManager
@@ -22,6 +24,15 @@ from webapi import routes
 def page_not_found(e):
     return {"success": False, "message": "404! Invalid URL!"}, 404
 
+
+@app.route('/pics/<path:filename>', methods=['GET'])
+def download(filename):
+    uploads = os.path.join(app.config["PROFILE_PICS"], filename)
+    return send_file(uploads, as_attachment=False)
+
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5002)
 
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 connection = engine.connect()
