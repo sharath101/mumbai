@@ -3,7 +3,19 @@ import { useGoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 
 const Login = () => {
-    const [state, setState] = useState({tokenReceived: false, loggedIn: false, ign: '', steamId: '', errorLogging: false, error: '', pic: ''}) 
+    const [error, setError] = useState('');
+    const [logInfo, setLogInfo] = useState({
+        googledIn: false,
+        accessToken: '',
+        loggedIn: false
+    })
+    const [user, setUser] = useState({
+        name: '',
+        email: '',
+        ign: '',
+        steamId: '',
+        pic: '',
+    })
 
     const login = useGoogleLogin({
         onSuccess: async tokenResponse  => {
@@ -12,95 +24,101 @@ const Login = () => {
             }
             try {
                 const response = await axios.post("http://26.47.157.189:5000/login", body)
-                console.log(response.data);
+                console.log("First request response:");
+                console.log(response);
                 if(response.status === 200 && response.data.success) {
-                    setState({
-                        ...state, 
-                        loggedIn: true, 
+                    setUser({
+                        ...user, 
                         ign: response.data.data.ign, 
                         steamId: response.data.data.steamId, 
                         pic: response.data.data.picture, 
-                        tokenReceived: true, 
+                        email: response.data.data.email,
+                        name:  response.data.data.name,
+                    })
+                    setLogInfo({
+                        ...logInfo,
+                        loggedIn: true, 
+                        googledIn: true, 
                         token: tokenResponse.access_token
                     })
+                    console.log(`Logged into app`);
                 } else {
-                    setState({...state, tokenReceived: true, token: tokenResponse.access_token})
-                    console.log(response.data.message);
+                    setLogInfo({...logInfo, googledIn: true, token: tokenResponse.access_token})
+                    console.log(`Logged in with google alone`);
                 }
             } catch (err) {
-                console.log('error submitting')
-                setState({...state, errorLogging: true, error: JSON.stringify(err), tokenReceived: true, token: tokenResponse.access_token})
+                console.log(`Error logging with google: ${JSON.stringify(err)}`)
+                setLogInfo({...logInfo, googleIn: false, token: tokenResponse.access_token})
+                setError('Server Error');
             }
         }
     });
 
-    const handleChange = (event) => {
-        const target = event.target;
-        console.log(state)
-        if(target.name === 'ign') {
-            setState({ ...state, ign: target.value})
-        } else if(target.name === 'steamId') {
-            setState({ ...state, steamId: target.value})
-        }
-    }
-
     const submitLoginForm = async () => {
-        console.log('submitted')
-        if(!state.tokenReceived) {
-            console.log('not logged in')
-        }
         const body = {
-            accessToken: state.token,
-            ign: state.ign,
-            steamId: state.steamId,
+            accessToken: user.token,
+            ign: user.ign,
+            steamId: user.steamId,
         }
         console.log(body)
         try {
             const response = await axios.post("http://26.47.157.189:5000/login", body)
-            console.log('sent')
-            console.log(response.data);
+            console.log("Second request response:");
+            console.log(response);
             if(response.status === 200 && response.data.success) {
                 console.log(response.data);
-                setState({
-                    ...state, 
-                    loggedIn: true, 
+                setUser({
+                    ...user, 
                     ign: response.data.data.ign, 
-                    steamId: response.data.data.steamId,  
-                    pic: response.data.data.picture
+                    steamId: response.data.data.steamId, 
+                    pic: response.data.data.picture, 
+                    email: response.data.data.email,
+                    name:  response.data.data.name,
                 })
-            }        
+                setLogInfo({
+                    ...logInfo,
+                    loggedIn: true,
+                })
+            } else {
+                console.log(`Second request not 200: ${JSON.stringify(response.data?.message)}`)
+                setError(response.data?.message)
+            }    
         } catch (err) {
-            console.log('error submitting')
-            setState({...state, errorLogging: true, error: JSON.stringify(err)})
+            console.log(`Second Request: error submitting: ${JSON.stringify(err)}`)
+            setError("Server Error")
         }
     }
-
-    console.log(state);
-    if(state.loggedIn) {
+    console.log(logInfo)
+    if(logInfo.loggedIn) {
         return (
             <div>
-                <h1>Welcome {state.ign} to mumbai</h1>
-                <img src={state.pic} alt=""></img>
+                <h1>Welcome {user.ign} to mumbai</h1>
+                <img src={user.pic} alt=""></img>
             </div>
         )
     }
 
-    return state.tokenReceived ? (
+    if(logInfo.googleIn){
+        console.log('afdfas')
+        return (
                 <div>
                     <label>IGN:</label>
-                    <input name="ign" value = {state.ign} onChange = {handleChange}/>
+                    <input name="ign" value = {user.ign} onChange = {ev => setUser({...user, ign: ev.target.value})}/>
                     <label>Steam Id:</label>
-                    <input name="steamId" value = {state.steamId} onChange = {handleChange}/><br/>
-                    {state.error}
+                    <input name="steamId" value = {user.steamId} onChange = {ev => setUser({...user, steamId: ev.target.value})}/><br/>
+                    {error}<br/>
                     <button onClick = {submitLoginForm}>Submit</button>
                 </div>
-        ) : (
+        )
+    }
+    return (
         <div>
             <h1>mumbai</h1>
             <div>
             <button onClick={() => login()}>
-            Sign in with Google 🚀{' '}
-            </button>;
+            <h2>Sign in with Google 🚀{' '}</h2>
+            {error}
+            </button>
             </div>
         </div>
       );
