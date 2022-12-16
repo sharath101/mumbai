@@ -34,6 +34,8 @@ class LoginController(Resource):
                     return {"success": False, "message": "Steam ID already used!"}
                 user_data["ign"] = data_posted["ign"]
                 user_data["steamId"] = steam_id
+                if not steam_id:
+                    return {"success": False, "message": "Steam ID is invalid!"}
                 if steam_id:
                     data, user = LoginService().create_user(data=user_data)
         login_user(user, remember=True)

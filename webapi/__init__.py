@@ -31,9 +31,6 @@ def download(filename):
     return send_file(uploads, as_attachment=False)
 
 
-if __name__ == '__main__':
-    app.run(debug=True, port=5002)
-
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 connection = engine.connect()
 table_models = importlib.import_module('webapi.models')
