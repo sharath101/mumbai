@@ -8,7 +8,6 @@ from flask_login import LoginManager
 from flask_cors import CORS
 from flask_restful import Api
 
-
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
 db = SQLAlchemy(app)
@@ -18,6 +17,7 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 api = Api(app)
 
 from webapi import routes
+from webapi.service.accounts import token_required, get_userinfo
 
 
 @app.errorhandler(404)
@@ -31,8 +31,11 @@ def download(filename):
     return send_file(uploads, as_attachment=False)
 
 
-if __name__ == '__main__':
-    app.run(debug=True, port=5002)
+@app.route('/bgpics', methods=['GET'])
+def download_bg():
+    uploads = os.path.join(app.config["BG_PICS"], "1.jpg")
+    return send_file(uploads, as_attachment=False)
+
 
 engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 connection = engine.connect()

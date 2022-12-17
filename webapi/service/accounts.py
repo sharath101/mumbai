@@ -1,10 +1,39 @@
+import datetime
 import os.path
 import shutil
-
+from functools import wraps
+import jwt
 import requests
+from flask import make_response, request
+from werkzeug.local import LocalProxy
 
 from webapi import app, db
 from webapi.models import User
+
+
+def get_userinfo(user_id):
+    user = User.query.get(user_id)
+    return user
+
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth_data = request.headers.get("Authorization")
+        if not auth_data:
+            return {"success": False, "message": "Token is missing!"}, 401
+        token = auth_data.split("Bearer ")[-1]
+        try:
+            a = jwt.decode(token, app.config["SECRET_KEY"], algorithms=['HS256'])
+            user_id = a["user"]
+            user = User.query.get(user_id)
+            if not user:
+                return {"success": False, "message": "Token invalid!"}, 401
+        except (jwt.exceptions.ExpiredSignatureError, jwt.exceptions.DecodeError):
+            return {"success": False, "message": "Token invalid!"}, 401
+        return f(*args, **kwargs)
+
+    return decorated
 
 
 class LoginService:
@@ -78,7 +107,7 @@ class LoginService:
         user = User.query.filter_by(email=data["email"]).first()
         self.save_user_image(data["picture"], user.steamid)
         data = {"ign": user.ign,
-                "picture": app.config["SERVER_URL"] +  user.picture,
+                "picture": app.config["SERVER_URL"] + user.picture,
                 "email": user.email,
                 "steamId": user.steamid,
                 "name": user.name}
@@ -94,3 +123,11 @@ class LoginService:
             return True
         else:
             return False
+
+    def get_token(self, user, return_obj):
+        resp = make_response(return_obj)
+        user_id = user.id
+        token = jwt.encode({'user': user_id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)},
+                           app.config["SECRET_KEY"], algorithm="HS256")
+        resp.headers["Authorization"] = "Bearer " + token
+        return resp
