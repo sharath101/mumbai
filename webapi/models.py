@@ -2,17 +2,6 @@ from webapi import db, login_manager
 from flask_login import UserMixin
 
 
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
-
-@login_manager.unauthorized_handler
-def unauthorized_callback():
-    return {"success": False,
-            "message": "Access Denied"}, 403
-
-
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     ign = db.Column(db.String, nullable=False)

@@ -1,8 +1,7 @@
 from flask import request
-from flask_login import login_user
 from flask_restful import Resource
 
-from webapi.Service.accounts import LoginService
+from webapi.service.accounts import LoginService
 
 
 class LoginController(Resource):
@@ -19,6 +18,7 @@ class LoginController(Resource):
         else:
             return {"success": False, "message": "accessToken not available!"}
         data, user = LoginService().get_user(google_data=user_data)
+        return_obj = {"success": True, "data": data}
         if not user:
             if "ign" in all_keys:
                 if data_posted["ign"] == "":
@@ -38,5 +38,6 @@ class LoginController(Resource):
                     return {"success": False, "message": "Steam ID is invalid!"}
                 if steam_id:
                     data, user = LoginService().create_user(data=user_data)
-        login_user(user, remember=True)
-        return {"success": True, "data": data}
+                    return_obj = {"success": True, "data": data}
+        login_data = LoginService().get_token(user, return_obj)
+        return login_data

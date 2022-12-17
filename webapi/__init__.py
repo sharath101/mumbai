@@ -8,7 +8,6 @@ from flask_login import LoginManager
 from flask_cors import CORS
 from flask_restful import Api
 
-
 app = Flask(__name__)
 app.config.from_pyfile('config.py')
 db = SQLAlchemy(app)
@@ -18,6 +17,7 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 api = Api(app)
 
 from webapi import routes
+from webapi.service.accounts import token_required, get_userinfo
 
 
 @app.errorhandler(404)
@@ -28,6 +28,12 @@ def page_not_found(e):
 @app.route('/pics/<path:filename>', methods=['GET'])
 def download(filename):
     uploads = os.path.join(app.config["PROFILE_PICS"], filename)
+    return send_file(uploads, as_attachment=False)
+
+
+@app.route('/bgpics', methods=['GET'])
+def download_bg():
+    uploads = os.path.join(app.config["BG_PICS"], "1.jpg")
     return send_file(uploads, as_attachment=False)
 
 
