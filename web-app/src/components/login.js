@@ -1,9 +1,14 @@
 import { useState } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
+import Modal from './modal';
+import Dropdown from 'react-bootstrap/Dropdown';
+import NavDropdown from 'react-bootstrap/NavDropdown';
+// import MenuItem from 'react-bootstrap/MenuItem';
 
 const Login = () => {
     const [error, setError] = useState('');
+    const [picClick, setPicClick] = useState(false);
     const [logInfo, setLogInfo] = useState({
         googledIn: false,
         accessToken: '',
@@ -54,9 +59,14 @@ const Login = () => {
         }
     });
 
+    const logOut = () => {
+        setLogInfo({...logInfo, loggedIn: false, googledIn: false})
+        window.location.reload()
+    }
+
     const submitLoginForm = async () => {
         const body = {
-            accessToken: user.token,
+            accessToken: logInfo.token,
             ign: user.ign,
             steamId: user.steamId,
         }
@@ -88,38 +98,74 @@ const Login = () => {
             setError("Server Error")
         }
     }
+
+    const closeModal = () => {
+        setLogInfo({...logInfo, googledIn: false})
+        setError('')
+    }
+
+
     console.log(logInfo)
     if(logInfo.loggedIn) {
+        console.log(picClick)
         return (
-            <div>
-                <h1>Welcome {user.ign} to mumbai</h1>
-                <img src={user.pic} alt=""></img>
-            </div>
+            <NavDropdown 
+                title={
+                    <div>
+                        {user.ign}
+                        <img width="40px" style={{borderRadius:"50%"}}
+                            src={user.pic} 
+                            alt="user pic"
+                        />
+                    </div>
+                } 
+                >
+
+                <Dropdown.Item >Profile</Dropdown.Item>
+                <Dropdown.Item onClick={logOut}>
+                    <i className="fa fa-sign-out"></i> Logout
+                </Dropdown.Item>
+            </NavDropdown>
+            // {/* <Dropdown>
+            //     <Dropdown.Toggle variant="info" id="dropdown-basic">
+            //     <img width="30px" style={{borderRadius:"50%"}} alt="" src={user.pic} />
+            //     </Dropdown.Toggle>
+
+            //     <Dropdown.Menu>
+            //         <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
+            //         <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
+            //         <Dropdown.Item href="#/action-3" onClick={logOut}>Log Out</Dropdown.Item>
+            //     </Dropdown.Menu>
+            // </Dropdown> */}
+
         )
     }
 
-    if(logInfo.googleIn){
-        console.log('afdfas')
+    if(logInfo.googledIn){
         return (
                 <div>
-                    <label>IGN:</label>
-                    <input name="ign" value = {user.ign} onChange = {ev => setUser({...user, ign: ev.target.value})}/>
-                    <label>Steam Id:</label>
-                    <input name="steamId" value = {user.steamId} onChange = {ev => setUser({...user, steamId: ev.target.value})}/><br/>
-                    {error}<br/>
-                    <button onClick = {submitLoginForm}>Submit</button>
+                <Modal
+                    onSubmit = {submitLoginForm}
+                    closeModal = {closeModal}
+                    user = {user}
+                    setUser = {setUser}
+                    errorMessage = {error}
+                />
+                <div>
+                    <button onClick={() => login()} id = "google-button" className ="btn btn-outline-dark" disabled={logInfo.googledIn} >
+                        <img width="20px" style={{marginBottom:"3px", marginRight:"5px"}} alt="" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
+                        Log in with Google
+                    </button>
                 </div>
+            </div>
         )
     }
     return (
         <div>
-            <h1>mumbai</h1>
-            <div>
-            <button onClick={() => login()}>
-            <h2>Sign in with Google 🚀{' '}</h2>
-            {error}
+            <button onClick={() => login()} id = "google-button" className ="btn btn-outline-dark" disabled={logInfo.googledIn} >
+                <img width="20px" style={{marginBottom:"3px", marginRight:"5px"}} alt="" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
+                Log in with Google
             </button>
-            </div>
         </div>
       );
 }
