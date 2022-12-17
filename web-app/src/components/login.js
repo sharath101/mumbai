@@ -1,26 +1,18 @@
 import { useState } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
-import axios from 'axios';
 import Modal from './modal';
 import Dropdown from 'react-bootstrap/Dropdown';
 import NavDropdown from 'react-bootstrap/NavDropdown';
+import { postRequest } from '../utils/axios'
 // import MenuItem from 'react-bootstrap/MenuItem';
 
-const Login = () => {
+const Login = ({
+    logInfo, 
+    setLogInfo,
+    user,
+    setUser,
+}) => {
     const [error, setError] = useState('');
-    const [picClick, setPicClick] = useState(false);
-    const [logInfo, setLogInfo] = useState({
-        googledIn: false,
-        accessToken: '',
-        loggedIn: false
-    })
-    const [user, setUser] = useState({
-        name: '',
-        email: '',
-        ign: '',
-        steamId: '',
-        pic: '',
-    })
 
     const login = useGoogleLogin({
         onSuccess: async tokenResponse  => {
@@ -28,7 +20,7 @@ const Login = () => {
                 accessToken: tokenResponse.access_token,
             }
             try {
-                const response = await axios.post("http://26.47.157.189:5000/login", body)
+                const response = await postRequest('/login', body) // axios.post("http://26.47.157.189:5000/login", body)
                 console.log("First request response:");
                 console.log(response);
                 if(response.status === 200 && response.data.success) {
@@ -72,7 +64,7 @@ const Login = () => {
         }
         console.log(body)
         try {
-            const response = await axios.post("http://26.47.157.189:5000/login", body)
+            const response = await postRequest('/login', body) //await axios.post("http://26.47.157.189:5000/login", body)
             console.log("Second request response:");
             console.log(response);
             if(response.status === 200 && response.data.success) {
@@ -107,7 +99,6 @@ const Login = () => {
 
     console.log(logInfo)
     if(logInfo.loggedIn) {
-        console.log(picClick)
         return (
             <NavDropdown 
                 title={
