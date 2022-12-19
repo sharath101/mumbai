@@ -40,8 +40,8 @@ function App() {
     }, []);
 
     return (
-        <div>
-            <header id='header' className='fixed-top  '>
+        <div className='container-fluid'>
+            <header id='header' className=''>
                 <div className='container-fluid d-flex align-items-center justify-content-lg-between'>
                     <div className='row col-md-12'>
                         <div className='col-md-2'>
@@ -114,7 +114,61 @@ function App() {
                     </div>
                 </div>
             </header>
-            <div className='container'></div>
+            <div className='container-fluid col-md-10'>
+                <div
+                    className='card mt-5 bg-dark text-white'
+                    style={{ height: '80vh' }}
+                >
+                    <div className='card-header align'>
+                        <h1>Profile</h1>
+                    </div>
+                    <div className='card-body'>
+                        <br />
+                        <form>
+                            <div class='form-group'>
+                                <label for='exampleInputEmail1'>
+                                    Email address
+                                </label>
+                                <input
+                                    type='email'
+                                    class='form-control'
+                                    id='exampleInputEmail1'
+                                    aria-describedby='emailHelp'
+                                />
+                            </div>
+                            <div class='form-group'>
+                                <label for='exampleInputPassword1'>
+                                    Password
+                                </label>
+                                <input
+                                    type='password'
+                                    class='form-control'
+                                    id='exampleInputPassword1'
+                                />
+                            </div>
+                            <div class='form-group form-check'>
+                                <input
+                                    type='checkbox'
+                                    class='form-check-input'
+                                    id='exampleCheck1'
+                                />
+                                <label
+                                    class='form-check-label'
+                                    for='exampleCheck1'
+                                >
+                                    Check me out
+                                </label>
+                            </div>
+                            <button type='submit' class='btn btn-primary'>
+                                Submit
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {/* <div className='card bg-dark' style={{ height: '700px' }}>
+                    col1
+                </div> */}
+            </div>
         </div>
     );
 }
