@@ -33,20 +33,6 @@ const UserForm = ({ onSubmit, user, setUser, errorMessage }) => {
             <Button variant='primary' onClick={onSubmit}>
                 Submit
             </Button>
-            {/* <div>
-                <div>
-                    <label>IGN</label><br/>
-                    <input type="text" id="ign" onChange={ev => setUser({...user, ign: ev.target.value})}></input>
-                </div>
-                <div>
-                    <label>Steam ID</label><br/>
-                    <input type="text" id="steamId" onChange={ev => setUser({...user, steamId: ev.target.value})}></input>
-                </div>
-                <div>{errorMessage}</div>
-                <div>
-                    <button onClick = {onSubmit}>Submit</button>
-                </div>
-        </div> */}
         </Form>
     );
 };
