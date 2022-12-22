@@ -5,13 +5,17 @@ from functools import wraps
 import jwt
 import requests
 from flask import make_response, request
-from werkzeug.local import LocalProxy
+from secrets import token_hex
 
 from webapi import app, db
 from webapi.models import User
 
 
-def get_userinfo(user_id):
+def get_userinfo():
+    auth_data = request.headers.get("Authorization")
+    token = auth_data.split("Bearer ")[-1]
+    a = jwt.decode(token, app.config["SECRET_KEY"], algorithms=['HS256'])
+    user_id = a["user"]
     user = User.query.get(user_id)
     return user
 
@@ -76,13 +80,13 @@ class LoginService:
         except:
             vanity_url = url
             steam_id = url
-        steam_response = requests.get('http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key=' +
+        steam_response = requests.get(app.config["STEAM_API_LINK1"] +
                                       app.config['STEAM_API_KEY'] + '&vanityurl=' + vanity_url)
         steam_json = steam_response.json()
         if steam_json['response']['success'] == 1:
             steam_id_final = steam_json['response']['steamid']
         else:
-            steam_response = requests.get('http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=' +
+            steam_response = requests.get(app.config["STEAM_API_LINK2"] +
                                           app.config['STEAM_API_KEY'] + '&steamids=' + steam_id)
             steam_json = steam_response.json()
             if steam_json['response']['players']:
@@ -96,16 +100,18 @@ class LoginService:
         return True, steam_id_final
 
     def create_user(self, data):
+        pic_string = token_hex(20)
         user = User()
         user.ign = data["ign"]
         user.name = data["name"]
         user.email = data["email"]
-        user.picture = "/pics/" + data["steamId"] + ".jpg"
         user.steamid = data["steamId"]
         db.session.add(user)
         db.session.commit()
         user = User.query.filter_by(email=data["email"]).first()
-        self.save_user_image(data["picture"], user.steamid)
+        user.picture = "/pics/" + str(user.id) + "_" + str(pic_string) + ".jpg"
+        self.save_user_image(data["picture"], str(user.id) + "_" + str(pic_string))
+        db.session.commit()
         data = {"ign": user.ign,
                 "picture": app.config["SERVER_URL"] + user.picture,
                 "email": user.email,
@@ -130,4 +136,50 @@ class LoginService:
         token = jwt.encode({'user': user_id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)},
                            app.config["SECRET_KEY"], algorithm="HS256")
         resp.headers["Authorization"] = "Bearer " + token
+        resp.headers["Access-Control-Expose-Headers"] = "Authorization"
         return resp
+
+
+class ProfileService:
+    def update_steam(self, data, user):
+        url = data["steamId"]
+        ign = data["ign"]
+        try:
+            vanity_url = url[30:]
+            if vanity_url[-1] == '/':
+                vanity_url = vanity_url[0:-1]
+            steam_id = url[36:]
+            if steam_id[-1] == '/':
+                steam_id = steam_id[0:-1]
+        except:
+            vanity_url = url
+            steam_id = url
+        steam_response = requests.get(app.config["STEAM_API_LINK1"] +
+                                      app.config['STEAM_API_KEY'] + '&vanityurl=' + vanity_url)
+        steam_json = steam_response.json()
+        if steam_json['response']['success'] == 1:
+            steam_id_final = steam_json['response']['steamid']
+        else:
+            steam_response = requests.get(app.config["STEAM_API_LINK2"] +
+                                          app.config['STEAM_API_KEY'] + '&steamids=' + steam_id)
+            steam_json = steam_response.json()
+            if steam_json['response']['players']:
+                steam_id_final = steam_json['response']['players'][0]['steamid']
+            else:
+                steam_id_final = False
+        if steam_id_final:
+            existing_user = User.query.filter_by(steamid=steam_id_final).first()
+            if existing_user and existing_user.id != user.id:
+                return False, "Steam ID already used by another user!"
+        if steam_id_final:
+            user.steamid = steam_id_final
+            user.ign = ign
+            db.session.commit()
+            user = User.query.get(user.id)
+            data = {"ign": user.ign,
+                    "picture": app.config["SERVER_URL"] + user.picture,
+                    "email": user.email,
+                    "steamId": user.steamid,
+                    "name": user.name}
+            return True, data
+        return False, "Steam ID invalid!"
