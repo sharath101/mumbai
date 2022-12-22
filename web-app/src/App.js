@@ -43,7 +43,7 @@ function App() {
 
     return (
         <div className='container-fluid'>
-            <header id='header' className=''>
+            <header id='header' className='navbar-custom'>
                 <div className='container-fluid d-flex align-items-center justify-content-lg-between'>
                     <NavBar
                         user={user}
