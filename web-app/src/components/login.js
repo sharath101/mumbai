@@ -129,7 +129,7 @@ const Login = ({ logInfo, setLogInfo, user, setUser }) => {
                     {user.email}
                 </Dropdown.Header>
                 <Dropdown.Divider />
-                <Dropdown.Item>Profile</Dropdown.Item>
+                <Dropdown.Item href='account'>Profile</Dropdown.Item>
                 <Dropdown.Item>My Team</Dropdown.Item>
                 <Dropdown.Item onClick={logOut}>
                     <i className='fa fa-sign-out'></i> Logout

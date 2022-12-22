@@ -1,9 +1,8 @@
 import './App.css';
 import { useState, useEffect } from 'react';
 import { getRequest } from './utils/axios';
-import { BrowserRouter } from 'react-router-dom';
 import NavBar from './components/navBar';
-import Routes from './routes/router';
+import Router from './routes/router';
 
 function App() {
     const [logInfo, setLogInfo] = useState({
@@ -53,14 +52,12 @@ function App() {
                     />
                 </div>
             </header>
-            {/* <BrowserRouter>
-                <Routes
-                    user={user}
-                    setUser={setUser}
-                    logInfo={logInfo}
-                    setLogInfo={setLogInfo}
-                />
-            </BrowserRouter> */}
+            <Router
+                user={user}
+                setUser={setUser}
+                logInfo={logInfo}
+                setLogInfo={setLogInfo}
+            />
         </div>
     );
 }
