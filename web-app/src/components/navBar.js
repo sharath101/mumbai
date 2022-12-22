@@ -17,10 +17,7 @@ const NavBar = ({ logInfo, setLogInfo, user, setUser }) => {
                 >
                     <ul>
                         <li>
-                            <a
-                                className='nav-link scrollto active'
-                                href='#hero'
-                            >
+                            <a className='nav-link scrollto active' href='/'>
                                 Home
                             </a>
                         </li>

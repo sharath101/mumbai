@@ -4,6 +4,7 @@ import Modal from './modal';
 import Dropdown from 'react-bootstrap/Dropdown';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { postRequest } from '../utils/axios';
+import { Link } from 'react-router-dom';
 // import MenuItem from 'react-bootstrap/MenuItem';
 
 const Login = ({ logInfo, setLogInfo, user, setUser }) => {
@@ -129,7 +130,9 @@ const Login = ({ logInfo, setLogInfo, user, setUser }) => {
                     {user.email}
                 </Dropdown.Header>
                 <Dropdown.Divider />
-                <Dropdown.Item href='account'>Profile</Dropdown.Item>
+                <Dropdown.Item>
+                    <Link to='/account'>Profile</Link>
+                </Dropdown.Item>
                 <Dropdown.Item>My Team</Dropdown.Item>
                 <Dropdown.Item onClick={logOut}>
                     <i className='fa fa-sign-out'></i> Logout
