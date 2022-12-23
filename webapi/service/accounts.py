@@ -13,6 +13,8 @@ from webapi.models import User
 
 def get_userinfo():
     auth_data = request.headers.get("Authorization")
+    if not auth_data:
+        return {"success": False, "message": "Token is missing!"}, 401
     token = auth_data.split("Bearer ")[-1]
     a = jwt.decode(token, app.config["SECRET_KEY"], algorithms=['HS256'])
     user_id = a["user"]
@@ -77,7 +79,7 @@ class LoginService:
             steam_id = url[36:]
             if steam_id[-1] == '/':
                 steam_id = steam_id[0:-1]
-        except:
+        except IndexError:
             vanity_url = url
             steam_id = url
         steam_response = requests.get(app.config["STEAM_API_LINK1"] +
@@ -151,7 +153,7 @@ class ProfileService:
             steam_id = url[36:]
             if steam_id[-1] == '/':
                 steam_id = steam_id[0:-1]
-        except:
+        except IndexError:
             vanity_url = url
             steam_id = url
         steam_response = requests.get(app.config["STEAM_API_LINK1"] +

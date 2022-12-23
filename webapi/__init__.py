@@ -2,6 +2,7 @@ import importlib
 import os
 
 from flask import Flask, send_file
+from flask_msearch import Search
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 from flask_login import LoginManager
@@ -15,6 +16,8 @@ login_manager = LoginManager(app)
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 app.config['CORS_HEADERS'] = 'Content-Type'
 api = Api(app)
+search = Search(db=db)
+search.init_app(app)
 
 from webapi import routes
 from webapi.service.accounts import token_required, get_userinfo
